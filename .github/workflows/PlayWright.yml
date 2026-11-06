@@ -8,14 +8,14 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest  # Changed to latest stable runner
+    runs-on: ubuntu-26.04
     steps:
-    - uses: actions/checkout@v4  # Updated to latest stable version
+    - uses: actions/checkout@v7
 
     - name: Setup dotnet
       uses: actions/setup-dotnet@v4  # Updated to latest stable version
       with:
-        dotnet-version: 8.0.x  # Use your target version (10.0.402 is not valid — .NET versions are like 8.0.x)
+        dotnet-version: 10.0.402
 
     - name: Build & Install
       run: dotnet build
@@ -25,7 +25,7 @@ jobs:
 
     # Upload TRX report
     - name: Upload TRX report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       if: always()
       with:
         name: trx-report
