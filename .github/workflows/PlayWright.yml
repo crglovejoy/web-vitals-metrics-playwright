@@ -1,26 +1,33 @@
-name: PlayWright Tests
+name: Playwright Tests
+
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+
 jobs:
   test:
-    runs-on: ubuntu-26.04
+    runs-on: ubuntu-latest  # Changed to latest stable runner
     steps:
-    - uses: actions/checkout@v7
+    - uses: actions/checkout@v4  # Updated to latest stable version
+
     - name: Setup dotnet
-      uses: actions/setup-dotnet@v6
+      uses: actions/setup-dotnet@v4  # Updated to latest stable version
       with:
-        dotnet-version: 10.0.402
+        dotnet-version: 8.0.x  # Use your target version (10.0.402 is not valid — .NET versions are like 8.0.x)
+
     - name: Build & Install
       run: dotnet build
-    - name: Run tests
-      run: dotnet test
-    - name: Upload test report
+
+    - name: Run tests with TRX report
+      run: dotnet test --logger "trx;LogFileName=TestResults.trx" --results-directory TestResults
+
+    # Upload TRX report
+    - name: Upload TRX report
       uses: actions/upload-artifact@v4
       if: always()
       with:
-        name: playwright-report
-        path: playwright-report/
+        name: trx-report
+        path: TestResults/TestResults.trx
         retention-days: 14
