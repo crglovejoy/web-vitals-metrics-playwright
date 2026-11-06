@@ -33,7 +33,7 @@ namespace WebVitalsMetricsPlaywrightTest
                     TestContext.Out.WriteLine($"Throttling in use: Latency {throttle.LatencyMs} ms, Download {throttle.DownloadKbps} Kbps, Upload {throttle.UploadKbps} Kbps, CPU rate {throttle.CpuRate}");
                 }
 
-                TestContext.Out.WriteLine($"Median Thresholds: LCP <= {lcpMedianThresh} ms, CLS <= {clsMedianThresh}, FCP <= {fcpMedianThresh} ms, TTFB <= {ttfbMedianThresh} ms");
+                TestContext.Out.WriteLine($"Median Thresholds: LCP = {lcpMedianThresh} ms, CLS = {clsMedianThresh}, FCP = {fcpMedianThresh} ms, TTFB = {ttfbMedianThresh} ms");
                 TestContext.Out.WriteLine();
                 TestContext.Out.WriteLine(summary);
 
