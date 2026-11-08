@@ -12,6 +12,10 @@ namespace WebVitalsMetricsPlaywrightTest
         [OneTimeSetUp]
         public async Task BaseOneTimeSetUp()
         {
+            /* Setup the PlayWright header value overrides so the web site interactions do not look like a test tool to the 
+             * bot detection implementation employed by the web site.
+            */
+
             _playwright = await Microsoft.Playwright.Playwright.CreateAsync();
             _browser = await _playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
             {
@@ -35,6 +39,7 @@ namespace WebVitalsMetricsPlaywrightTest
         [OneTimeTearDown]
         public async Task BaseOneTimeTearDown()
         {
+            // Cleanup our no longer needed resources
             if (_context != null) await _context.CloseAsync();
             if (_browser != null) await _browser.CloseAsync();
             if (_playwright != null) _playwright.Dispose();

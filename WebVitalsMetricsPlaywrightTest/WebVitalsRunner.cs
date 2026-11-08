@@ -7,11 +7,15 @@ namespace WebVitalsMetricsPlaywrightTest
     /************************/
     /**  THROTTLE OPTIONS  **/
     /************************/
+
+    /* This test can run on machines with varying resources, so we can try to throttle the network and CPU to reduce the results
+     * variance. The default values are based on Lighthouse's "Slow 4G" profile.
+     */
     public sealed record ThrottleOptions(
     double LatencyMs = 150,
     double DownloadKbps = 1.6 * 1024,   // Lighthouse "Slow 4G"
     double UploadKbps = 750,
-    double CpuRate = 4);
+    double CpuRate = 4);  // Slow the CPU by a factor of 4 (NOTE: not all CPUs are equal!).  1 = no CPU throttling.
 
 
     /***************************/
@@ -64,6 +68,11 @@ namespace WebVitalsMetricsPlaywrightTest
 
     public static class WebVitalsRunner
     {
+        /* NOTE: WebVitals only available for Chromium */
+        
+        /* Use reportAllChanges for LCP, CLS and INP as these need to be updated as new values
+         * become available.  TTFB and FCP are once only values.
+         */
         private const string Collector = @"
             ;(function () {
                 window.__vitals = {};
@@ -127,7 +136,10 @@ namespace WebVitalsMetricsPlaywrightTest
                     foreach (var (name, value) in result)
                     {
                         if (!samples.TryGetValue(name, out var list))
-                            samples[name] = list = new List<double>();
+                        {
+                            samples[name] = list = [];
+                        }
+
                         list.Add(value);
                     }
                 }
@@ -142,11 +154,14 @@ namespace WebVitalsMetricsPlaywrightTest
                 kv =>
                 {
                     var sorted = kv.Value.OrderBy(v => v).ToList();
-                    return new MetricStats(
-                        kv.Key, sorted.Count, MedianOf(sorted), sorted[0], sorted[^1], kv.Value);
+                    return new MetricStats(kv.Key, sorted.Count, MedianOf(sorted), sorted[0], sorted[^1], kv.Value);
                 });
 
-            return new WebVitalsSummary { Iterations = iterations, Failed = failed, Metrics = metrics };
+            return new WebVitalsSummary { 
+                Iterations = iterations, 
+                Failed = failed, 
+                Metrics = metrics
+            };
         }
 
 
@@ -186,8 +201,11 @@ namespace WebVitalsMetricsPlaywrightTest
             {
                 await page.GotoAsync(url, new PageGotoOptions { WaitUntil = WaitUntilState.Load });
 
+                // If any interactions are provided, execute the user actionso on the web page.
                 if (interact is not null)
+                {
                     await interact(page);
+                }
 
                 await page.WaitForTimeoutAsync(settleMs);
 
@@ -212,10 +230,8 @@ namespace WebVitalsMetricsPlaywrightTest
 
         private static double MedianOf(IReadOnlyList<double> sorted)
         {
-            var n = sorted.Count;
-            return n % 2 == 1
-                ? sorted[n / 2]
-                : (sorted[n / 2 - 1] + sorted[n / 2]) / 2.0;
+            int cnt = sorted.Count;
+            return (cnt % 2 == 1) ? sorted[cnt / 2] : (sorted[cnt / 2 - 1] + sorted[cnt / 2]) / 2.0;
         }
     }
 }
