@@ -12,6 +12,7 @@ namespace WebVitalsMetricsPlaywrightTest
             //ThrottleOptions? throttle = null;  // new ThrottleOptions();
             ThrottleOptions? throttle = new();
 
+            // Assign thresholds to be used by assertions later based on whether throttling is in use or not
             double lcpMedianThresh = (throttle != null) ? 4500d : 250d;
             double clsMedianThresh = (throttle != null) ? 0.15d : 0.1d;
             double fcpMedianThresh = (throttle != null) ? 1800d : 250d;
@@ -22,9 +23,9 @@ namespace WebVitalsMetricsPlaywrightTest
                 var summary = await WebVitalsRunner.RunAsync(
                     Browser,
                     "https://www.bankofamerica.com/",
-                    interact: null, // async page => await page.ClickAsync("button#menu"),
-                    iterations: 5,
-                    warmup: 1,
+                    interact: null, // Example: async page => await page.ClickAsync("button#menu"),
+                    iterations: 5,  // execute 5 iterations (after the number of warmup iterations are completed) and capture the metrics for each
+                    warmup: 1,      // exclude warmup executions from the metrics that will be analyzed later via assertions
                     throttle: throttle
                 );
 
